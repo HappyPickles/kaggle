@@ -108,7 +108,6 @@ print(best)
 # TrainDf, ValDF = model_selection.train_test_split(TrainDf, test_size=0.33, random_state=True)
 sub_model = ensemble.RandomForestClassifier()
 sub_model.fit(TrainDf[FeaturesColumns], TrainDf[Target])
-
 submission = pd.DataFrame(sub_model.predict(TestDf[FeaturesColumns]),
                           index=TestDf['PassengerId'], columns=['Survived']).astype(int)
 submission.to_csv('my_submission.csv')
