@@ -34,7 +34,6 @@ for Df in [TrainDf, TestDf]:
         ((Df['Name'].str.contains('Mrs')) & (Df['Age'].notna())), 'Age'].median()
 
 
-
     Df['Family'] = Df['SibSp'] + Df['Parch']
     Df['Per_Fare'] = Df['Fare'] / (Df['Family'] + 1)
 
@@ -53,9 +52,9 @@ for Df in [TrainDf, TestDf]:
 
     Df.loc[Df['Cabin'].isna(), 'CabinC'] = 0
     Df.loc[Df['Cabin'].isna(), 'Cabin'] = 'None'
-    Df.loc[Df['Cabin'].str.contains(re.compile('A|B|C')), 'CabinC'] = 1
-    Df.loc[Df['Cabin'].str.contains(re.compile('D|E|F')), 'CabinC'] = 2
-    Df.loc[Df['Cabin'].str.contains(re.compile('G|H|T')), 'CabinC'] = 3
+    Df.loc[Df['Cabin'].str.contains(re.compile('[ABC]')), 'CabinC'] = 1
+    Df.loc[Df['Cabin'].str.contains(re.compile('[DEF]')), 'CabinC'] = 2
+    Df.loc[Df['Cabin'].str.contains(re.compile('[GHT]')), 'CabinC'] = 3
 
     Df.loc[Df['Ticket'] == 'LINE', 'Ticket'] = '0'
     Df.loc[:, 'TicketN'] = Df['Ticket'].str.extract('(\\d+)', expand=False).astype(int)
