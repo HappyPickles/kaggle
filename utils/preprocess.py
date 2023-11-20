@@ -12,7 +12,7 @@ def IQR_outlier(df: Union[pd.DataFrame, np.ndarray],
                 N: Union[float, int] = 1.5):
     """
     IQR_outlier. The outlier will be np.nan.
-    :param df: DataFrame that need to be processed. If it is Numpy array, it will be transform to pd.DataFrame.
+    :param df: DataFrame that need to be processed. If it is Numpy array, it will be transformed to pd.DataFrame.
     :param features: Features that need to be processed, if it is None, then all features will be process.
     :param N: N times. Default to 1.5.
     :return: df with process.
@@ -20,17 +20,13 @@ def IQR_outlier(df: Union[pd.DataFrame, np.ndarray],
 
     assert isinstance(N, (float, int)), TypeError('N must be a float or int.')
     assert isinstance(df, (pd.DataFrame, np.ndarray)), TypeError('df must be a Pandas DataFrame or NumPy array')
-
     if type(df) == np.ndarray:
         Df = pd.DataFrame(df)
     else:
         Df = df.copy()
-
     if features is None:
         features = Df.columns
-
     assert set(features).issubset(set(Df.columns)), ValueError('A column does not exist')
-
     if N <= 0:
         raise ValueError('N must be greater than 0')
 
@@ -46,15 +42,23 @@ def IQR_outlier(df: Union[pd.DataFrame, np.ndarray],
 def dummy_process(df: Union[pd.DataFrame, np.ndarray],
                   features: List[str] = None):
     """
-
+    dummy data process.
     :param df:
     :param features:
     :return:
     """
-    # TODO dummy data process.
-    return 0
 
+    assert isinstance(df, (pd.DataFrame, np.ndarray)), TypeError('df must be a Pandas DataFrame or NumPy array')
+    if type(df) == np.ndarray:
+        Df = pd.DataFrame(df)
+    else:
+        Df = df.copy()
+    if features is None:
+        features = Df.columns
+    assert set(features).issubset(set(Df.columns)), ValueError('A column does not exist')
 
+    dummies = pd.get_dummies(Df, features)
+    Df.drop(features, inplace=True)
+    Df.join(dummies)
 
-
-
+    return Df

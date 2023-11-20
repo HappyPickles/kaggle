@@ -1,4 +1,6 @@
-import numpy as np
+# /House Price/Preprocess
+# -*-coding:utf-8-*-
+
 import pandas as pd
 
 
