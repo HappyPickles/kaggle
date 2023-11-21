@@ -7,6 +7,9 @@ import numpy as np
 import pandas as pd
 
 
+__all__ = ['IQR_outlier', 'dummy_process']
+
+
 def IQR_outlier(df: Union[pd.DataFrame, np.ndarray],
                 features: List[str] = None,
                 N: Union[float, int] = 1.5):
@@ -21,22 +24,20 @@ def IQR_outlier(df: Union[pd.DataFrame, np.ndarray],
     assert isinstance(N, (float, int)), TypeError('N must be a float or int.')
     assert isinstance(df, (pd.DataFrame, np.ndarray)), TypeError('df must be a Pandas DataFrame or NumPy array')
     if type(df) == np.ndarray:
-        Df = pd.DataFrame(df)
-    else:
-        Df = df.copy()
+        df = pd.DataFrame(df)
     if features is None:
-        features = Df.columns
-    assert set(features).issubset(set(Df.columns)), ValueError('A column does not exist')
+        features = df.columns
+    assert set(features).issubset(set(df.columns)), ValueError('A column does not exist')
     if N <= 0:
         raise ValueError('N must be greater than 0')
 
     for column in features:
-        Q1 = Df[column].quantile(0.25)
-        Q2 = Df[column].quantile(0.75)
+        Q1 = df[column].quantile(0.25)
+        Q2 = df[column].quantile(0.75)
         IQR = Q2 - Q1
-        Df.loc[((Df[column] < Q1 - N * IQR) | (Df[column] > Q2 + N * IQR)), column] = np.nan
+        df.loc[((df[column] < Q1 - N * IQR) | (df[column] > Q2 + N * IQR)), column] = np.nan
 
-    return Df
+    return True
 
 
 def dummy_process(df: Union[pd.DataFrame, np.ndarray],
@@ -50,15 +51,14 @@ def dummy_process(df: Union[pd.DataFrame, np.ndarray],
 
     assert isinstance(df, (pd.DataFrame, np.ndarray)), TypeError('df must be a Pandas DataFrame or NumPy array')
     if type(df) == np.ndarray:
-        Df = pd.DataFrame(df)
-    else:
-        Df = df.copy()
+        df = pd.DataFrame(df)
+
     if features is None:
-        features = Df.columns
-    assert set(features).issubset(set(Df.columns)), ValueError('A column does not exist')
+        features = df.columns
+    assert set(features).issubset(set(df.columns)), ValueError('A column does not exist')
 
-    dummies = pd.get_dummies(Df, features)
-    Df.drop(features, inplace=True)
-    Df.join(dummies)
+    dummies = pd.get_dummies(df, prefix_sep='dummy_')
+    df.drop(features, inplace=True)
+    df = pd.concat([df, dummies], axis=1)
 
-    return Df
+    return True
