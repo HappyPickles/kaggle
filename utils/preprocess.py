@@ -12,7 +12,7 @@ __all__ = ['IQR_outlier', 'dummy_process']
 
 def IQR_outlier(df: Union[pd.DataFrame, np.ndarray],
                 features: List[str] = None,
-                N: Union[float, int] = 1.5):
+                N: Union[float, int] = 1.5) -> pd.DataFrame:
     """
     IQR_outlier. The outlier will be np.nan.
     :param df: DataFrame that need to be processed. If it is Numpy array, it will be transformed to pd.DataFrame.
@@ -37,11 +37,11 @@ def IQR_outlier(df: Union[pd.DataFrame, np.ndarray],
         IQR = Q2 - Q1
         df.loc[((df[column] < Q1 - N * IQR) | (df[column] > Q2 + N * IQR)), column] = np.nan
 
-    return True
+    return df
 
 
 def dummy_process(df: Union[pd.DataFrame, np.ndarray],
-                  features: List[str] = None):
+                  features: List[str] = None) -> pd.DataFrame:
     """
     dummy data process.
     :param df:
@@ -61,14 +61,18 @@ def dummy_process(df: Union[pd.DataFrame, np.ndarray],
     df.drop(features, inplace=True)
     df = pd.concat([df, dummies], axis=1)
 
-    return True
+    return df
 
 
-def find_Continuous_value_data(df: Union[pd.DataFrame, np.ndarray]):
+def min_max_norm(df: Union[pd.DataFrame, pd.Series]):
     """
-    find continuous value data.
-    :param df:
-    :return:
+
+    :param df: Data
+    :return: norm df.
     """
-    # TODO
-    pass
+    assert isinstance(df, (pd.DataFrame, pd.Series)),\
+           TypeError('df must be a Pandas DataFrame, Series or NumPy array')
+
+    norm = (df - df.min()) / (df.max() - df.min())
+
+    return norm
