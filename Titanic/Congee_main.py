@@ -35,6 +35,9 @@ for DF in [trainDF, testDF]:
     DF.loc[DF['Sex'] == 'female', 'Sex'] = 0
     DF.loc[DF['Sex'] == 'male', 'Sex'] = 1
 
+    DF['Fare'] = (DF['Fare'] - DF['Fare'].min())/(DF['Fare'].max()-DF['Fare'].min())
+    DF['Age'] = (DF['Age'] - DF['Age'].min()) / (DF['Age'].max() - DF['Age'].min())
+
 features = ['Pclass', 'Sex', 'Age', 'Fare', 'SibSp', 'Parch']
 target = ['Survived']
 
