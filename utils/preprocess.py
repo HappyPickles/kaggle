@@ -62,3 +62,13 @@ def dummy_process(df: Union[pd.DataFrame, np.ndarray],
     df = pd.concat([df, dummies], axis=1)
 
     return True
+
+
+def find_Continuous_value_data(df: Union[pd.DataFrame, np.ndarray]):
+    """
+    find continuous value data.
+    :param df:
+    :return:
+    """
+    # TODO
+    pass
