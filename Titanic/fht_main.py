@@ -5,6 +5,7 @@ from sklearn import tree
 from sklearn import model_selection
 
 train = pd.read_csv('train.csv')
+test = pd.read_csv('test.csv')
 print(train)
 print(train.head(10))
 print(train.tail(10))
