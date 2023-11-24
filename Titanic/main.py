@@ -14,15 +14,30 @@ TestDf = pd.read_csv('test.csv')
 # Preprocess
 
 for Df in [TrainDf, TestDf]:
-    for column in ['Survived', 'Pclass', 'Age', 'Fare']:
+    for column in ['Survived', 'Pclass', 'Age']:
         if Df is TestDf and column == 'Survived':
             continue
         Q1 = Df[column].quantile(0.25)
-        Q2 = Df[column].quantile(0.75)
-        IQR = Q2 - Q1
+        Q3 = Df[column].quantile(0.75)
+        IQR = Q3 - Q1
         N = 1.5
-        Df.loc[((Df[column] < Q1 - N * IQR) | (Df[column] > Q2 + N * IQR)), column] = np.nan
+        Df.loc[((Df[column] < Q1 - N * IQR) | (Df[column] > Q3 + N * IQR)), column] = np.nan
         # Remove IQR exceeding 1.5 times as outlier.
+    for pclass in range(1, 4):
+        Fare = Df.loc[Df['Pclass'] == pclass, 'Fare']
+        upper_quartile = Fare.quantile(0.75)
+        lower_quartile = Fare.quantile(0.25)
+        N = 3
+        IQR = upper_quartile - lower_quartile
+        upper_bounds = upper_quartile + N * IQR
+        lower_bounds = lower_quartile - N * IQR
+
+        Df.loc[((Df['Pclass'] == pclass) & (Df['Fare'] > upper_bounds)), 'Fare'] = np.nan
+        Df.loc[((Df['Pclass'] == pclass) & (Df['Fare'] < lower_bounds)), 'Fare'] = np.nan
+
+        median = Df.loc[Df['Pclass'] == pclass, 'Fare'].median()
+        Df.loc[(Df['Pclass'] == pclass) & (Df['Fare'].isna()), 'Fare'] = median
+
 
     Df.loc[((Df['Name'].str.contains('Miss')) & Df['Age'].isna()), 'Age'] = Df.loc[
         ((Df['Name'].str.contains('Miss')) & (Df['Age'].notna())), 'Age'].median()
@@ -40,7 +55,7 @@ for Df in [TrainDf, TestDf]:
 
     Df['Sex'].replace(['male', 'female'], [0, 1], inplace=True)
     Df['Embarked'].replace(['S', 'C', 'Q'], [0, 1, 2], inplace=True)
-    for column in ['Pclass', 'Age', 'Fare', 'Embarked', 'Family', 'Per_Fare', 'SibSp', 'Parch']:
+    for column in ['Pclass', 'Age', 'Fare', 'Embarked', 'Family']:
         Df[column].fillna(Df[column].median(), inplace=True)
 
     Df.loc[Df['Age'] >= 75, 'EaC'] = 2
@@ -71,41 +86,42 @@ for Df in [TrainDf, TestDf]:
 corr = TrainDf.corr()
 print(corr['Survived'])
 print('--' * 20)
-FeaturesColumns = ['Pclass', 'Sex', 'Fare', 'Embarked', 'Per_Fare', 'EaC', 'HC', 'CabinC', 'TicketN', 'HF']
+FeaturesColumns = ['Pclass', 'Sex', 'Fare', 'Embarked', 'Per_Fare', 'EaC', 'HC', 'TicketN', 'HF']
 Target = 'Survived'
 
 
 # Model Selection
-best = [0, 0, 0, 0, 0]
-for i, model in enumerate([ensemble.RandomForestClassifier(), xgb.XGBClassifier(),
-                           ensemble.GradientBoostingClassifier(), tree.ExtraTreeClassifier(),
-                           ensemble.AdaBoostClassifier()]):
+select = False
+if select:
+    best = [0, 0, 0, 0, 0]
+    for i, model in enumerate([ensemble.RandomForestClassifier(), xgb.XGBClassifier(),
+                               ensemble.GradientBoostingClassifier(), tree.ExtraTreeClassifier(),
+                               ensemble.AdaBoostClassifier()]):
 
-    for size in [0.33]:
-        S_TrainDf, ValDF = model_selection.train_test_split(TrainDf, test_size=size, random_state=True)
-        model.fit(S_TrainDf[FeaturesColumns], S_TrainDf[Target])
-        val_score = model.score(ValDF[FeaturesColumns], ValDF[Target])
-        train_score = model.score(TrainDf[FeaturesColumns], TrainDf[Target])
-        cross_score = model_selection.cross_val_score(model, TrainDf[FeaturesColumns], TrainDf[Target], cv=10)
+        for size in [0.2, 0.25, 0.33]:
+            S_TrainDf, ValDF = model_selection.train_test_split(TrainDf, test_size=size, random_state=True)
+            model.fit(S_TrainDf[FeaturesColumns], S_TrainDf[Target])
+            val_score = model.score(ValDF[FeaturesColumns], ValDF[Target])
+            train_score = model.score(TrainDf[FeaturesColumns], TrainDf[Target])
+            cross_score = model_selection.cross_val_score(model, TrainDf[FeaturesColumns], TrainDf[Target], cv=10)
 
-        if cross_score.mean() > best[4]:
-            best[0] = i
-            best[1] = size
-            best[2] = val_score
-            best[3] = train_score
-            best[4] = cross_score.mean()
-        print('size %.2f ' % size)
-        print('model index %s' % i)
-        print(val_score)
-        print(train_score)
-        print(cross_score.mean())
-        print('--' * 20)
-print(best)
+            if cross_score.mean() > best[4]:
+                best[0] = i
+                best[1] = size
+                best[2] = val_score
+                best[3] = train_score
+                best[4] = cross_score.mean()
+            print('size %.2f ' % size)
+            print('model index %s' % i)
+            print(val_score)
+            print(cross_score.mean())
+            print('--' * 20)
+    print(best)
 
 
 # Predict
 # TrainDf, ValDF = model_selection.train_test_split(TrainDf, test_size=0.33, random_state=True)
-sub_model = ensemble.RandomForestClassifier()
+sub_model = xgb.XGBClassifier()
 sub_model.fit(TrainDf[FeaturesColumns], TrainDf[Target])
 submission = pd.DataFrame(sub_model.predict(TestDf[FeaturesColumns]),
                           index=TestDf['PassengerId'], columns=['Survived']).astype(int)
