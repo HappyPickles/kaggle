@@ -125,4 +125,4 @@ sub_model = xgb.XGBClassifier()
 sub_model.fit(TrainDf[FeaturesColumns], TrainDf[Target])
 submission = pd.DataFrame(sub_model.predict(TestDf[FeaturesColumns]),
                           index=TestDf['PassengerId'], columns=['Survived']).astype(int)
-submission.to_csv('Gx_submission.csv')
+submission.to_csv('Pickles_submission.csv')

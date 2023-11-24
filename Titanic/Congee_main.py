@@ -24,7 +24,9 @@ for DF in [trainDF, testDF]:
         DF.loc[((DF['Pclass'] == pclass) & (DF['Fare'] < lower_bounds)), 'Fare'] = np.nan
 
         median = DF.loc[DF['Pclass'] == pclass, 'Fare'].median()
-        DF.loc[DF['Pclass'] == pclass, 'Fare'].fillna(value=median, inplace=True)
+        DF.loc[(DF['Pclass'] == pclass) & (DF['Fare'].isnull()), 'Fare'] = median
+
+
 
     values = {'Age': DF['Age'].median(),
               'Embarked': DF['Embarked'].mode()}
@@ -42,3 +44,6 @@ model = tree.DecisionTreeClassifier()
 model.fit(x_train, y_train)
 print(model.score(x_val, y_val))
 
+submission = pd.DataFrame(model.predict(testDF[features]),
+                          index=testDF['PassengerId'], columns=['Survived']).astype(int)
+submission.to_csv('Congee_submission.csv')
