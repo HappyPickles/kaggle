@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from sklearn import model_selection
 from sklearn import tree
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 
 trainDF = pd.read_csv('train.csv')
 testDF = pd.read_csv('test.csv')
@@ -43,7 +45,16 @@ target = ['Survived']
 
 
 x_train, x_val, y_train, y_val = model_selection.train_test_split(trainDF[features], trainDF[target], test_size=0.25)
-model = tree.DecisionTreeClassifier()
+
+# model = tree.DecisionTreeClassifier()
+# model.fit(x_train, y_train)
+# print(model.score(x_val, y_val))
+
+# model = SVC()
+# model.fit(x_train, y_train)
+# print(model.score(x_val, y_val))
+
+model = RandomForestClassifier()
 model.fit(x_train, y_train)
 print(model.score(x_val, y_val))
 
