@@ -55,8 +55,8 @@ x_train, x_val, y_train, y_val = model_selection.train_test_split(trainDF[featur
 # print(model.score(x_val, y_val))
 
 model = RandomForestClassifier()
-model.fit(x_train, y_train)
-print(model.score(x_val, y_val))
+model.fit(x_train, np.ravel(y_train))
+print(model.score(x_val, np.ravel(y_val)))
 
 submission = pd.DataFrame(model.predict(testDF[features]),
                           index=testDF['PassengerId'], columns=['Survived']).astype(int)
