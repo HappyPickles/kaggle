@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 
-__all__ = ['IQR_outlier', 'dummy_process']
+__all__ = ['IQR_outlier', 'dummy_process', 'min_max_norm']
 
 
 def IQR_outlier(df: Union[pd.DataFrame, np.ndarray],
@@ -57,8 +57,8 @@ def dummy_process(df: Union[pd.DataFrame, np.ndarray],
         features = df.columns
     assert set(features).issubset(set(df.columns)), ValueError('A column does not exist')
 
-    dummies = pd.get_dummies(df, prefix_sep='dummy_')
-    df.drop(features, inplace=True)
+    dummies = pd.get_dummies(df[features], prefix_sep='_is_')
+    df.drop(features, inplace=True, axis=1)
     df = pd.concat([df, dummies], axis=1)
 
     return df
