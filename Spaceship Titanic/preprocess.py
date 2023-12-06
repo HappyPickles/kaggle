@@ -54,3 +54,6 @@ test_df = preprocess(test_df)
 
 print(train_df.info())
 print(train_df.corr()['Transported'])
+
+train_df.to_csv('train_pre.csv')
+test_df.to_csv('test_pre.csv')
