@@ -8,25 +8,19 @@ from utils.preprocess import *
 train_df = pd.read_csv(r'train.csv')
 test_df = pd.read_csv(r'test.csv')
 print(train_df.corr()['Transported'])
-consume_list = ['TotalConsume', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
+consume_list = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 
 
 def preprocess(df: pd.DataFrame):
     df = dummy_process(df, ['HomePlanet', 'Destination'])
     df.replace({True: 1, False: 0}, inplace=True)
 
-    RoomService_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), 'RoomService']
-    FoodCourt_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), 'FoodCourt']
-    ShoppingMall_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), 'ShoppingMall']
-    Spa_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), 'Spa']
-    VRDeck_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), 'VRDeck']
-    IQR_outlier(RoomService_part)
-    IQR_outlier(FoodCourt_part)
-    IQR_outlier(ShoppingMall_part)
-    IQR_outlier(Spa_part)
-    IQR_outlier(VRDeck_part)
+    consume_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), consume_list]
+    df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), consume_list] = IQR_outlier(consume_part, consume_list)
+
 
     df['TotalConsume'] = df['RoomService'] + df['FoodCourt'] + df['ShoppingMall'] + df['Spa'] + df['VRDeck']
+
     df.loc[(df['TotalConsume'] == 0) & (df['CryoSleep'].isnull()), 'CryoSleep'] = 1
     df.loc[(df['TotalConsume'] != 0) & (df['CryoSleep'].isnull()), 'CryoSleep'] = 0
     df.loc[(df['CryoSleep'] == 1) & (df['TotalConsume'].isnull()), consume_list] = 0
@@ -68,7 +62,7 @@ test_df = preprocess(test_df)
 
 print(train_df.info())
 print(train_df.corr()['Transported'])
-
+print(train_df.columns)
 Features = ['CryoSleep', 'RoomService', 'Spa', 'VRDeck', 'HomePlanet_is_Earth', 'HomePlanet_is_Europa', 'TotalConsume',
             'deck_is_B', 'deck_is_C']
 
