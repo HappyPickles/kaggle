@@ -19,7 +19,7 @@ def preprocess(df: pd.DataFrame):
     df.loc[df['TotalConsume'] != 0 & df['CryoSleep'].isnull(), 'CryoSleep'] = 0
     df.loc[(df['CryoSleep'] == 1) & (df['TotalConsume'].isnull()), consume_list] = 0
     df.loc[df['CryoSleep'] == 0, consume_list].fillna(df.loc[df['CryoSleep'], consume_list].median())
-
+    df[consume_list] = min_max_norm(df[consume_list])
 
 
     df.fillna(method='pad', inplace=True)
@@ -31,5 +31,4 @@ train_df = preprocess(train_df)
 test_df = preprocess(test_df)
 
 print(train_df.info())
-print(train_df['Transported'])
 print(train_df.corr()['Transported'])
