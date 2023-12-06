@@ -14,6 +14,18 @@ consume_list = ['TotalConsume', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa
 def preprocess(df: pd.DataFrame):
     df = dummy_process(df, ['HomePlanet', 'Destination'])
     df.replace({True: 1, False: 0}, inplace=True)
+
+    RoomService_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), 'RoomService']
+    FoodCourt_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), 'FoodCourt']
+    ShoppingMall_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), 'ShoppingMall']
+    Spa_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), 'Spa']
+    VRDeck_part = df.loc[(df['CryoSleep'] == 1) & (df['Age'] <= 12), 'VRDeck']
+    IQR_outlier(RoomService_part)
+    IQR_outlier(FoodCourt_part)
+    IQR_outlier(ShoppingMall_part)
+    IQR_outlier(Spa_part)
+    IQR_outlier(VRDeck_part)
+
     df['TotalConsume'] = df['RoomService'] + df['FoodCourt'] + df['ShoppingMall'] + df['Spa'] + df['VRDeck']
     df.loc[(df['TotalConsume'] == 0) & (df['CryoSleep'].isnull()), 'CryoSleep'] = 1
     df.loc[(df['TotalConsume'] != 0) & (df['CryoSleep'].isnull()), 'CryoSleep'] = 0
@@ -45,6 +57,8 @@ def preprocess(df: pd.DataFrame):
     df['cabin_num'] = df['Cabin'].apply(lambda x: int(x[2:-2]))
     df['side'] = df['Cabin'].apply(lambda x: x[-1])
     df = dummy_process(df, ['deck', 'side'])
+    df['is_kid'] = df['Age'].apply(lambda x: x <= 12)
+    df['is_elder'] = df['Age'].apply(lambda x: x > 12)
 
     return df
 
@@ -54,6 +68,9 @@ test_df = preprocess(test_df)
 
 print(train_df.info())
 print(train_df.corr()['Transported'])
+
+Features = ['CryoSleep', 'RoomService', 'Spa', 'VRDeck', 'HomePlanet_is_Earth', 'HomePlanet_is_Europa', 'TotalConsume',
+            'deck_is_B', 'deck_is_C']
 
 train_df.to_csv('train_pre.csv')
 test_df.to_csv('test_pre.csv')
