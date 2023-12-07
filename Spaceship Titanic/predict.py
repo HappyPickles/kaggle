@@ -24,7 +24,7 @@ model_list = [ensemble.RandomForestClassifier(), xgb.XGBClassifier(), ensemble.G
               ensemble.AdaBoostClassifier(), ensemble.BaggingClassifier()]
 
 if __name__ == '__main__':
-    model = ensemble.AdaBoostClassifier()
+    model = ensemble.RandomForestClassifier()
 
     xgb_param = {'eta': [0.01, 0.1, 0.3], 'min_child_weight': [1, 3, 5],
                  'max_depth': [6, 8, 10], 'n_estimators': [100, 500],
