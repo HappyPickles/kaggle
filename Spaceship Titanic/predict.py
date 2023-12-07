@@ -6,37 +6,47 @@ import pandas as pd
 from sklearn import *
 
 
-Features = ['CryoSleep', 'RoomService', 'Spa', 'VRDeck', 'HomePlanet_is_Earth', 'HomePlanet_is_Europa', 'TotalConsume',
-            'deck_is_B', 'deck_is_C']
-
-
-train_X = pd.read_csv(r'train_pre.csv')
-train_Y = pd.read_csv(r'train_pre.csv')['Transported']
+train = pd.read_csv(r'train_pre.csv')
 test = pd.read_csv(r'test_pre.csv')
-test_X = pd.read_csv(r'test_pre.csv')
 
-train_X.drop(columns=['PassengerId', 'Name', 'Cabin', 'Transported'], inplace=True)
-test_X.drop(columns=['PassengerId', 'Name', 'Cabin'], inplace=True)
-train_X = train_X[Features]
-test_X = test_X[Features]
+features = list(train.corr()['Transported'].sort_values(key=abs).index[::-1])[1:16]
 
-select = True
+
+train_X = train.drop(columns=['PassengerId', 'Name', 'Cabin', 'Transported'])[features]
+train_Y = train['Transported']
+test_X = test.drop(columns=['PassengerId', 'Name', 'Cabin'])[features]
+
+select = False
 CV = 10
-submit = False
-
+submit = True
+better = True
+model_list = [ensemble.RandomForestClassifier(), xgb.XGBClassifier(), ensemble.GradientBoostingClassifier(),
+              ensemble.AdaBoostClassifier(), ensemble.BaggingClassifier()]
 
 if __name__ == '__main__':
+    model = ensemble.AdaBoostClassifier()
+
+    xgb_param = {'eta': [0.01, 0.1, 0.3], 'min_child_weight': [1, 3, 5],
+                 'max_depth': [6, 8, 10], 'n_estimators': [100, 500],
+                 'alpha': [0, 0.1], 'lambda': [0, 0.2], 'subsample': [0.5, 1]}
+
+    rf_param = {'n_estimators': [100, 200, 500], 'max_depth': [6, 10, 15],
+                'max_features': [6, 10], 'bootstrap': [True, False]}
+
     if select:
-        for i, model in enumerate([ensemble.RandomForestClassifier(), xgb.XGBClassifier(),
-                                   ensemble.GradientBoostingClassifier(), tree.ExtraTreeClassifier(),
-                                   ensemble.AdaBoostClassifier(), tree.DecisionTreeClassifier(),
-                                   neural_network.MLPClassifier()]):
+        for i, model in enumerate(model_list):
             cross_score = model_selection.cross_val_score(model, train_X, train_Y, cv=CV)
             print(i, sum(cross_score) / CV)
+
+    if better:
+        submission_model = model_selection.GridSearchCV(model, param_grid=rf_param)
+    else:
+        submission_model = model
+
     if submit:
-        submission_model = ensemble.RandomForestClassifier()
         submission_model.fit(train_X, train_Y)
         submission = submission_model.predict(test_X)
         submission = pd.DataFrame(submission, index=test['PassengerId'], columns=['Transported'])
         submission['Transported'].replace({1: True, 0: False}, inplace=True)
         submission.to_csv('submission.csv')
+        print('Finish')
