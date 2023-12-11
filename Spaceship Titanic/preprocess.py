@@ -25,7 +25,7 @@ def preprocess(df: pd.DataFrame):
     df.loc[(df['TotalConsume'] != 0) & (df['CryoSleep'].isnull()), 'CryoSleep'] = 0
     df.loc[(df['CryoSleep'] == 1) & (df['TotalConsume'].isnull()), consume_list] = 0
     df.loc[df['CryoSleep'] == 0, consume_list].fillna(df.loc[df['CryoSleep'], consume_list].median())
-    df[consume_list] = min_max_norm(df[consume_list])
+    df[consume_list] = min_max_scaler(df[consume_list])
     df['group_num'] = 0
 
     cont = 1

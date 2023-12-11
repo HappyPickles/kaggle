@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 
-__all__ = ['IQR_outlier', 'dummy_process', 'min_max_norm']
+__all__ = ['IQR_outlier', 'dummy_process', 'min_max_norm', 'gaussian_norm']
 
 
 def IQR_outlier(df: Union[pd.DataFrame, np.ndarray],
@@ -66,13 +66,29 @@ def dummy_process(df: Union[pd.DataFrame, np.ndarray],
 
 def min_max_norm(df: Union[pd.DataFrame, pd.Series]):
     """
-
+    make data scale to 0-1 scale.
     :param df: Data
     :return: norm df.
     """
+
     assert isinstance(df, (pd.DataFrame, pd.Series)),\
            TypeError('df must be a Pandas DataFrame, Series or NumPy array')
 
     norm = (df - df.min()) / (df.max() - df.min())
+
+    return norm
+
+
+def gaussian_norm(df: Union[pd.DataFrame, pd.Series]):
+    """
+    make data scale to gaussian distribution.
+    :param df: Data
+    :return: norm df.
+    """
+
+    assert isinstance(df, (pd.DataFrame, pd.Series)),\
+           TypeError('df must be a Pandas DataFrame, Series or NumPy array')
+
+    norm = (df - df.mean()) / df.std()
 
     return norm
