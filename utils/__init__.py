@@ -5,4 +5,4 @@
 Utils.
 """
 
-__all__ = ['preprocess']
+__all__ = ['preprocess', 'draw']

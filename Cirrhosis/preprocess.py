@@ -28,7 +28,10 @@ def preprocess(df: pd.DataFrame, test=False):
     return df
 
 
-pre_train_df = preprocess(train_df)
-pre_test_df = preprocess(test_df, test=True)
-pre_train_df.to_csv('pre_train.csv')
-pre_test_df.to_csv('pre_test.csv')
+if __name__ == '__main__':
+    pre_train_df = preprocess(train_df)
+    pre_test_df = preprocess(test_df, test=True)
+    print(pre_train_df.info())
+    print(pre_train_df.describe())
+    # pre_train_df.to_csv('pre_train.csv')
+    # pre_test_df.to_csv('pre_test.csv')
