@@ -15,6 +15,7 @@ def IQR_outlier(df: Union[pd.DataFrame, np.ndarray],
                 N: Union[float, int] = 1.5) -> pd.DataFrame:
     """
     IQR_outlier. The outlier will be np.nan.
+    :rtype: object
     :param df: DataFrame that need to be processed. If it is Numpy array, it will be transformed to pd.DataFrame.
     :param feature: Features that need to be processed, if it is None, then all features will be process.
     :param N: N times. Default to 1.5.
