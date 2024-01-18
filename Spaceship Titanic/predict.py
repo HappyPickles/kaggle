@@ -18,7 +18,6 @@ test_X = test.drop(columns=['PassengerId', 'Name', 'Cabin'])[features]
 
 select = False
 CV = 10
-submit = True
 better = True
 model_list = [ensemble.RandomForestClassifier(), xgb.XGBClassifier(), ensemble.GradientBoostingClassifier(),
               ensemble.AdaBoostClassifier(), ensemble.BaggingClassifier()]
@@ -42,11 +41,3 @@ if __name__ == '__main__':
         submission_model = model_selection.GridSearchCV(model, param_grid=rf_param)
     else:
         submission_model = model
-
-    if submit:
-        submission_model.fit(train_X, train_Y)
-        submission = submission_model.predict(test_X)
-        submission = pd.DataFrame(submission, index=test['PassengerId'], columns=['Transported'])
-        submission['Transported'].replace({1: True, 0: False}, inplace=True)
-        submission.to_csv('submission.csv')
-        print('Finish')

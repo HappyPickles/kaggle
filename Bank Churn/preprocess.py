@@ -6,6 +6,7 @@ import pandas as pd
 import seaborn as sns
 from utils.preprocess import *
 from matplotlib import pyplot as plt
+from sklearn import *
 
 warnings.filterwarnings("ignore")
 
@@ -20,9 +21,10 @@ def preprocess(df: pd.DataFrame):
     df['Tenure_is_0'] = (df['Tenure'] == 0)
     df['Balance'] = gaussian_norm(df['Balance'])
     df['EstimatedSalary'] = gaussian_norm(df['EstimatedSalary'])
-    df['CreditScore'] = gaussian_norm(df['CreditScore'])
-    df = in_range_process(df, {'Age': [[12, 18], [18, 24], [24, 60], [60, 100]]}, drop=False)
+    df = in_range_process(df, {'Age': [[12, 18], [18, 24], [24, 60], [60, 100]],
+                               'CreditScore': [[350, 450], [450, 600], [600, 750], [750, 850]]}, drop=False)
     df['Age'] = gaussian_norm(df['Age'])
+    df['CreditScore'] = gaussian_norm(df['CreditScore'])
     df.drop(['id', 'CustomerId', 'Surname'], axis=1, inplace=True)
     return df
 
@@ -30,11 +32,10 @@ def preprocess(df: pd.DataFrame):
 if __name__ == '__main__':
     train_df = preprocess(train_df)
     test_df = preprocess(test_df)
-    print(train_df.head().transpose())
-    print('--' * 20)
-    print(train_df.describe().transpose())
+
     corr = train_df.corr()
-    print(corr)
-    sns.heatmap(corr)
     print(corr['Exited'].sort_values(key=lambda x: abs(x)))
-    plt.show()
+
+    train_df.to_csv('train_p.csv')
+    test_df.to_csv('test_p.csv')
+    

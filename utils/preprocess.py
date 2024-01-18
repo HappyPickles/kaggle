@@ -66,6 +66,8 @@ def dummy_process(df: Union[pd.DataFrame, pd.Series, np.ndarray],
     dummies = pd.get_dummies(df[feature], prefix_sep='_is_')
     if drop:
         df.drop(feature, inplace=True, axis=1)
+    if len(dummies.columns) == 2:
+        dummies.drop(dummies.columns[1], axis=1)
     df = pd.concat([df, dummies], axis=1)
 
     return df
@@ -127,6 +129,7 @@ def in_range_process(df: Union[pd.DataFrame, pd.Series, np.ndarray],
 
 
     for feature in features:
+
         if type(scale[feature][0]) != list:
             left, right = scale[feature]
             df[feature + '_in_range'] = 0
@@ -137,9 +140,9 @@ def in_range_process(df: Union[pd.DataFrame, pd.Series, np.ndarray],
         elif type(scale[feature][0]) == list:
             for feature_range in scale[feature]:
                 left, right = feature_range
-                df[feature + '_in_' + str(feature_range)] = 0
+                df[feature + '_in_' + str(feature_range[0]) + '_' + str(feature_range[1])] = 0
                 df.loc[(left <= df[feature]) & (df[feature] <= right),
-                       feature + '_in_' + str(feature_range)] = 1
+                       feature + '_in_' + str(feature_range[0]) + '_' + str(feature_range[1])] = 1
     if drop:
         df.drop(features, inplace=True, axis=1)
 
