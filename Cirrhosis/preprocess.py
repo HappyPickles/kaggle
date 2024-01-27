@@ -2,7 +2,7 @@
 
 
 import pandas as pd
-from utils.preprocess import *
+from utils.data_preprocess import *
 
 train_df = pd.read_csv(r'train.csv')
 test_df = pd.read_csv(r'test.csv')

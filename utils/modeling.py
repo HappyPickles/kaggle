@@ -2,7 +2,6 @@
 # -*-coding:utf-8-*-
 import pandas as pd
 
-from preprocess import min_max_norm
 from typing import List
 import numpy as np
 
